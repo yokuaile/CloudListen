@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 自适应图标（Android 8.0+ 全部设备均走此配置，minSdk=26）：
+     背景层为薄荷绿→蓝渐变（源图圆角外区域经金字塔扩散 + 调和插值补全为连续渐变），
+     前景层为整张「耳机 + 展开的书」图案，缩到 76dp 的圆角方块居中，
+     其中书+耳机占比 64×61dp，稳在 66dp 安全区内，圆形遮罩下不会被切边。
+
+     刻意不提供 <monochrome> 单色层：Android 13+ 一旦发现有该层，就会在用户开启
+     「主题图标」时只按 alpha 渲染成壁纸同色轮廓，桌面图标看起来和彩色版完全不同。
+     去掉这一层后系统不主题化本图标，任何分辨率 / 任何主题设置下显示的都是同一张彩色图案。 -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@mipmap/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>

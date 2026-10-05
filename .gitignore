@@ -1,0 +1,14 @@
+# 构建产物
+.gradle/
+.kotlin/
+build/
+app/build/
+local.properties
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# 签名密钥不入公开仓库
+app/keystore/
