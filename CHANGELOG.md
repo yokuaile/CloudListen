@@ -1,5 +1,13 @@
 # 云听书 CHANGELOG
 
+## 1.0.26（versionCode 27）
+
+### 新增：播放页封面取色渐变背景
+- 播放页用 Palette 从封面提取主色（vibrant → muted → dominant），
+  背景改为「顶部封面色调 → 中部渐淡 → 底部回归底色」的纵向渐变，文字保持深色可读。
+- 封面背后的环境光晕同步改用封面主色（无封面时退回微信绿）。
+- 新增依赖 androidx.palette:palette-ktx:1.0.0。
+
 ## 1.0.25（versionCode 26）
 
 ### 调整：进度条加粗

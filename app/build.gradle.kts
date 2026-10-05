@@ -12,8 +12,8 @@ android {
         applicationId = "com.yunting.audiobook"
         minSdk = 21
         targetSdk = 34
-        versionCode = 26
-        versionName = "1.0.25"
+        versionCode = 27
+        versionName = "1.0.26"
         vectorDrawables { useSupportLibrary = true }
     }
 
@@ -89,4 +89,5 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("androidx.palette:palette-ktx:1.0.0")
 }

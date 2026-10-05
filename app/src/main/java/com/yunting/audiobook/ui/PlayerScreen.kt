@@ -1,5 +1,6 @@
 package com.yunting.audiobook.ui
 
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
@@ -59,13 +60,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.imageLoader
+import coil.request.ImageRequest
+import androidx.palette.graphics.Palette
 import com.yunting.audiobook.playback.PlayerHub
 import com.yunting.audiobook.ui.theme.WeChatGreen
 
@@ -91,10 +97,23 @@ fun PlayerScreen(onCollapse: () -> Unit) {
         }
     }
 
+    // 封面主色提取 → 页面渐变背景（取不到时退回纯底色）
+    val bg = MaterialTheme.colorScheme.background
+    val coverColor = rememberCoverColor(PlayerHub.currentCover)
+    val accent = coverColor ?: WeChatGreen
+    val pageGradient = remember(coverColor, bg) {
+        if (coverColor == null) listOf(bg, bg)
+        else listOf(
+            lerp(bg, coverColor, 0.55f),  // 顶部：封面色调为主
+            lerp(bg, coverColor, 0.22f),  // 中部：渐淡
+            bg                            // 底部：回归底色，保证文字可读
+        )
+    }
+
     Column(
         Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Brush.verticalGradient(pageGradient))
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
@@ -129,7 +148,7 @@ fun PlayerScreen(onCollapse: () -> Unit) {
                 .weight(1f),
             contentAlignment = Alignment.Center
         ) {
-            // 环境光晕：封面后方一圈淡绿径向渐变，让画面不那么"平"
+            // 环境光晕：封面后方一圈主色径向渐变（取封面色，无封面时退回微信绿）
             Box(
                 Modifier
                     .fillMaxWidth(0.98f)
@@ -137,7 +156,7 @@ fun PlayerScreen(onCollapse: () -> Unit) {
                     .clip(CircleShape)
                     .background(
                         Brush.radialGradient(
-                            listOf(WeChatGreen.copy(alpha = 0.12f), Color.Transparent)
+                            listOf(accent.copy(alpha = 0.25f), Color.Transparent)
                         )
                     )
             )
@@ -563,6 +582,27 @@ fun PlayerScreen(onCollapse: () -> Unit) {
             Spacer(Modifier.height(28.dp))
         }
     }
+}
+
+/** 从封面提取主色（Palette，优先 vibrant → muted → dominant），异步返回 */
+@Composable
+private fun rememberCoverColor(cover: String?): Color? {
+    var color by remember(cover) { mutableStateOf<Color?>(null) }
+    val context = LocalContext.current
+    LaunchedEffect(cover) {
+        if (cover.isNullOrBlank()) { color = null; return@LaunchedEffect }
+        val request = ImageRequest.Builder(context)
+            .data(cover)
+            .allowHardware(false)
+            .size(96)
+            .build()
+        val bmp = (context.imageLoader.execute(request).drawable as? BitmapDrawable)?.bitmap
+            ?: return@LaunchedEffect
+        val palette = Palette.from(bmp).maximumColorCount(24).generate()
+        val swatch = palette.vibrantSwatch ?: palette.mutedSwatch ?: palette.dominantSwatch
+        color = swatch?.let { Color(it.rgb) }
+    }
+    return color
 }
 
 /** 功能卡片：图标 + 名称 + 当前值；激活时绿色描边高亮 */
